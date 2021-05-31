@@ -9,7 +9,8 @@ const app: express.Application = express();
 app.disable("x-powered-by");
 const corsOptions: cors.CorsOptions = {
   origin: [
-    "http://localhost:4203",
+    `http://raffle.${process.env.BLURPAPER_ORIGIN}`,
+    `http://www.raffle.${process.env.BLURPAPER_ORIGIN}`,
     `https://raffle.${process.env.BLURPAPER_ORIGIN}`,
     `https://www.raffle.${process.env.BLURPAPER_ORIGIN}`,
   ],
