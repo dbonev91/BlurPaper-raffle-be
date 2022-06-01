@@ -4,17 +4,25 @@ import https from "https";
 import fs from "fs";
 import { RANGE_END_PROP, RANGE_START_PROP } from "./shared/constants";
 import crypto from "crypto";
+import { config } from 'dotenv';
+
+const path: string | undefined = `./environment/${process.env.NODE_ENV === 'production' ? '.env.prod' : '.env'}`;
+
+config({ path });
+
+// TODO: export as generic function in common repo for all the microservices: https://dbpaper.atlassian.net/browse/SM-1
+const MAIN_CORS_URL: string = `${process.env.CORS_PROTOCOL}://${process.env.CORS_DOMAIN}`;
+const origin: string[] = process.env.CORS_PORTS ? process.env.CORS_PORTS.split(' ').map((port: string) => {
+  return `${MAIN_CORS_URL}:${port.trim()}`;
+}) : [];
+
+origin.push('https://raffle.blurpaper.com');
+origin.push('https://www.raffle.blurpaper.com');
+origin.push(MAIN_CORS_URL);
 
 const app: express.Application = express();
 app.disable("x-powered-by");
-const corsOptions: cors.CorsOptions = {
-  origin: [
-    `http://raffle.${process.env.BLURPAPER_ORIGIN}`,
-    `http://www.raffle.${process.env.BLURPAPER_ORIGIN}`,
-    `https://raffle.${process.env.BLURPAPER_ORIGIN}`,
-    `https://www.raffle.${process.env.BLURPAPER_ORIGIN}`,
-  ],
-};
+const corsOptions: cors.CorsOptions = { origin };
 app.use(cors(corsOptions));
 
 // Parse JSON bodies (as sent by API clients)
@@ -49,20 +57,24 @@ app.get(
 
 let server: https.Server | express.Application = app;
 
-if (
-  process.env.BLURPAPER_MONGO_SSL_PATH &&
-  process.env.BLURPAPER_MONGO_SSL_PATH !== "undefined"
-) {
-  server = https.createServer(
-    {
-      key: fs.readFileSync("/etc/ssl/private/ZeroSSL/private.key"),
-      cert: fs.readFileSync("/etc/ssl/ZeroSSL/certificate.crt"),
-      rejectUnauthorized: false,
-    },
-    app
-  );
+// TODO: export as generic function in common repo for all the microservices: https://dbpaper.atlassian.net/browse/SM-1
+if (process.env.SSL_KEY && process.env.SSL_CERT) {
+  try {
+    server = https.createServer(
+      {
+        key: fs.readFileSync(process.env.SSL_KEY),
+        cert: fs.readFileSync(process.env.SSL_CERT),
+        rejectUnauthorized: false,
+      },
+      app
+    );
+  } catch (error) {
+    console.log('ERROR:');
+    console.log('Could not start with SSL connection');
+    console.log(error);
+  }
 }
 
-server.listen(3009, () => {
-  console.log("Raffle app is listening on port 3009!!!!");
+server.listen(process.env.PORT, () => {
+  console.log(`Paper raffle app is listening on port ${process.env.PORT}!!!!`);
 });
