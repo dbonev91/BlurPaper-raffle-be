@@ -11,18 +11,18 @@ const path: string | undefined = `./environment/${process.env.NODE_ENV === 'prod
 config({ path });
 
 // TODO: export as generic function in common repo for all the microservices: https://dbpaper.atlassian.net/browse/SM-1
-const MAIN_CORS_URL: string = `${process.env.CORS_PROTOCOL}://${process.env.CORS_DOMAIN}`;
-const origin: string[] = process.env.CORS_PORTS ? process.env.CORS_PORTS.split(' ').map((port: string) => {
-  return `${MAIN_CORS_URL}:${port.trim()}`;
-}) : [];
+// const MAIN_CORS_URL: string = `${process.env.CORS_PROTOCOL}://${process.env.CORS_DOMAIN}`;
+// const origin: string[] = process.env.CORS_PORTS ? process.env.CORS_PORTS.split(' ').map((port: string) => {
+//   return `${MAIN_CORS_URL}:${port.trim()}`;
+// }) : [];
 
-origin.push('https://raffle.blurpaper.com');
-origin.push('https://www.raffle.blurpaper.com');
-origin.push(MAIN_CORS_URL);
+// origin.push('https://raffle.blurpaper.com');
+// origin.push('https://www.raffle.blurpaper.com');
+// origin.push(MAIN_CORS_URL);
 
 const app: express.Application = express();
 app.disable("x-powered-by");
-const corsOptions: cors.CorsOptions = { origin };
+const corsOptions: cors.CorsOptions = { origin: /^(https:\/\/)([a-zA-Z0-9\-]+)?(?!\/)(?!\?).?(blurpaper.com):?([0-9]+)?/ };
 app.use(cors(corsOptions));
 
 // Parse JSON bodies (as sent by API clients)
