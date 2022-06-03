@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsc": "tsc",
-    "start-prod": "tsc && node dist/app.js",
+    "start-prod": "tsc && node dist/src/app/app.js",
     "start": "npm-run-all --parallel watch:build watch:server --print-label",
     "watch:build": "tsc --watch",
     "watch:server": "nodemon dist/app.js --watch dist"
@@ -31,7 +31,6 @@
   },
   "dependencies": {
     "cors": "^2.8.5",
-    "express": "^4.17.1",
-    "dotenv": "^16.0.1"
+    "express": "^4.17.1"
   }
 }
