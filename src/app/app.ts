@@ -4,18 +4,12 @@ import https from "https";
 import fs from "fs";
 import { RANGE_END_PROP, RANGE_START_PROP } from "./shared/constants";
 import crypto from "crypto";
+import { PaperConfiguration } from '../../paper-node-configuration/src/app';
 
+const paperConfiguration: PaperConfiguration<https.Server | express.Application> = new PaperConfiguration(process.env.NODE_ENV === 'production');
 const app: express.Application = express();
 app.disable("x-powered-by");
-const corsOptions: cors.CorsOptions = {
-  origin: [
-    `http://raffle.${process.env.BLURPAPER_ORIGIN}`,
-    `http://www.raffle.${process.env.BLURPAPER_ORIGIN}`,
-    `https://raffle.${process.env.BLURPAPER_ORIGIN}`,
-    `https://www.raffle.${process.env.BLURPAPER_ORIGIN}`,
-  ],
-};
-app.use(cors(corsOptions));
+app.use(cors(paperConfiguration.getCorsOrigin()));
 
 // Parse JSON bodies (as sent by API clients)
 app.use(express.json());
@@ -47,22 +41,4 @@ app.get(
   }
 );
 
-let server: https.Server | express.Application = app;
-
-if (
-  process.env.BLURPAPER_MONGO_SSL_PATH &&
-  process.env.BLURPAPER_MONGO_SSL_PATH !== "undefined"
-) {
-  server = https.createServer(
-    {
-      key: fs.readFileSync("/etc/ssl/private/ZeroSSL/private.key"),
-      cert: fs.readFileSync("/etc/ssl/ZeroSSL/certificate.crt"),
-      rejectUnauthorized: false,
-    },
-    app
-  );
-}
-
-server.listen(3009, () => {
-  console.log("Raffle app is listening on port 3009!!!!");
-});
+paperConfiguration.startNodeServer(app, Number(process.env.PORT), process.env.APP_NAME || '', process.env.PRIVATE_KEY || '', process.env.FULL_CHAIN || '');
