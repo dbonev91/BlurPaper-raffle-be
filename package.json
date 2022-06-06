@@ -6,7 +6,7 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "tsc": "tsc",
-    "start-prod": "tsc && node dist/src/app/app.js",
+    "start-prod": "tsc && node dist/paper-raffle-be/src/app/app.js",
     "start": "npm-run-all --parallel watch:build watch:server --print-label",
     "watch:build": "tsc --watch",
     "watch:server": "nodemon dist/app.js --watch dist"

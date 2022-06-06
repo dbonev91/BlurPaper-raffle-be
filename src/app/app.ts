@@ -1,13 +1,12 @@
 import express from "express";
 import cors from "cors";
-import https from "https";
-import fs from "fs";
 import { RANGE_END_PROP, RANGE_START_PROP } from "./shared/constants";
 import crypto from "crypto";
-import { PaperConfiguration } from '../../paper-node-configuration/src/app';
+import { PaperConfiguration } from '../../../paper-node-configuration/src/app';
+import { IEnv } from "../../../paper-node-configuration/src/shared/models/env.interface";
 
-const paperConfiguration: PaperConfiguration<https.Server | express.Application> = new PaperConfiguration(process.env.NODE_ENV === 'production');
 const app: express.Application = express();
+const paperConfiguration: PaperConfiguration = new PaperConfiguration(process.env as IEnv, app);
 app.disable("x-powered-by");
 app.use(cors(paperConfiguration.getCorsOrigin()));
 
@@ -41,4 +40,4 @@ app.get(
   }
 );
 
-paperConfiguration.startNodeServer(app, Number(process.env.PORT), process.env.APP_NAME || '', process.env.PRIVATE_KEY || '', process.env.FULL_CHAIN || '');
+paperConfiguration.startNodeServer();
